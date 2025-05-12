@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,7 +23,11 @@ public class PedidoController {
     @GetMapping("/{id}")
     public ResponseEntity<Pedido> encontrarPedido(@PathVariable UUID id) {
         Optional<Pedido> pedido = pedidoService.encontrarPedido(id);
-        return pedido.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+        if (pedido.isPresent()) {
+            return ResponseEntity.ok(pedido.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     @GetMapping("/todos")
@@ -37,28 +43,34 @@ public class PedidoController {
     public ResponseEntity<Pedido> cadastrarPedido(@RequestBody Pedido pedido) {
         try {
             Pedido pedidoCadastrado = pedidoService.cadastrarPedido(pedido);
-            return ResponseEntity.ok(pedidoCadastrado);
-        } catch(Exception e) {
+            URI uri = ServletUriComponentsBuilder.fromCurrentRequest()
+                    .path("/{id}")
+                    .buildAndExpand(pedidoCadastrado.getId())
+                    .toUri();
+            return ResponseEntity.created(uri).body(pedidoCadastrado);
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
     @PutMapping("/alterar")
     public ResponseEntity<Pedido> alterarPedido(@RequestBody Pedido pedido) {
-        try {
+        Optional<Pedido> pedidoVerificado = pedidoService.encontrarPedido(pedido.getId());
+        if (pedidoVerificado.isPresent()) {
             Pedido pedidoAlterado = pedidoService.alterarPedido(pedido);
             return ResponseEntity.ok(pedidoAlterado);
-        } catch(Exception e) {
+        } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
-    @DeleteMapping("/deletar/{cpf}")
-    public ResponseEntity<Pedido> deletarPedido(@PathVariable UUID pedido) {
-        try {
-            pedidoService.deletarPedido(pedido);
-            return ResponseEntity.ok().build();
-        } catch(Exception e) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Pedido> deletarPedido(@PathVariable UUID id) {
+        Optional<Pedido> pedido = pedidoService.encontrarPedido(id);
+        if (pedido.isPresent()) {
+            pedidoService.deletarPedido(id);
+            return ResponseEntity.noContent().build();
+        } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }

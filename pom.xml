@@ -6,13 +6,13 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.5</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>com.example</groupId>
-	<artifactId>pagamento-sistema</artifactId>
+	<artifactId>pedido-sistema</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>produtos</name>
-	<description>Produtos para gerenciamento de um restaurante</description>
+	<name>pedidos</name>
+	<description>Pedidos para gerenciamento de um restaurante</description>
 	<url/>
 	<licenses>
 		<license/>
